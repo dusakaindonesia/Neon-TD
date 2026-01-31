@@ -6,8 +6,9 @@ A fast-paced, cyberpunk-themed Tower Defense game built purely with HTML5 Canvas
 
 Click the link below to play instantly in your browser (Mobile & Desktop supported):
 
-🚀 PLAY NEON TOWER DEFENSE : https://dusakaindonesia.github.io/Neon-TD/ 
-or DOWNLOAD NOW ! https://github.com/dusakaindonesia/Neon-TD/releases/download/v1.0.0/Neon.TD.apk
+🚀 PLAY NEON TOWER DEFENSE ###
+* 🌐 **Play Online:** [Play in Browser (No Install)](https://dusakaindonesia.github.io/Neon-TD/)
+* 📱 **Android:** [Download .APK File (v1.0.0)](https://github.com/dusakaindonesia/Neon-TD/releases/download/v1.0.0/Neon.TD.apk)
 
 <img width="1895" height="938" alt="Screenshot 2026-01-31 235602" src="https://github.com/user-attachments/assets/89647cd1-3a16-421f-b431-af43da47e7e1" />
 
@@ -129,5 +130,6 @@ Open a Pull Request.
 Created with ❤️ by Dusaka Indonesia.
 
 Enjoy the neon lights, Commander!
+
 
 
