@@ -2,13 +2,11 @@
 
 A fast-paced, cyberpunk-themed Tower Defense game built purely with HTML5 Canvas.
 
-🎮 Play Now / Mainkan Sekarang
+🎮 Play Now !
 
 Click the link below to play instantly in your browser (Mobile & Desktop supported):
 
-🚀 MAINKAN NEON TOWER DEFENSE
-
-(Ganti link di atas dengan link GitHub Pages kamu setelah aktif)
+🚀 PLAY NEON TOWER DEFENSE : https://dusakaindonesia.github.io/Neon-TD/
 
 ✨ Features
 
@@ -86,8 +84,39 @@ Storage: LocalStorage (Save/Load capability)
 
 External: TailwindCSS (via CDN) for UI styling.
 
+
+
+
+🤝 How to Contribute (Kolaborasi)
+
+We welcome contributions! This project is beginner-friendly because everything is in a single file structure, making it easy to understand the logic.
+
+Want to help? Here are some ideas:
+
+🗺️ Roadmap / To-Do List
+
+[ ] New Enemy Types: Add fast/invisible enemies.
+
+[ ] Tower Abilities: Add "Slow" effect to Blaster or "Splash" to Sniper.
+
+[ ] Visual Effects: Add screen shake on boss death.
+
+[ ] Map Editor: Create a simple array generator for custom paths.
+
+Steps to Contribute:
+
+Fork this repository.
+
+Create a new branch (git checkout -b feature/AmazingFeature).
+
+Commit your changes (git commit -m 'Add some AmazingFeature').
+
+Push to the branch (git push origin feature/AmazingFeature).
+
+Open a Pull Request.
+
 👨‍💻 Developer
 
-Created with ❤️ by [Nama Kamu].
+Created with ❤️ by Dusaka Indonesia.
 
 Enjoy the neon lights, Commander!
