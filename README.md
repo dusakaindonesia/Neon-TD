@@ -28,15 +28,15 @@ Play instantly in your browser (Mobile & Desktop supported) or download the Andr
 
 ## ✨ Features
 
-- ⚡ **Delta-Time Frame Normalization:** Game loop decoupled dari refresh rate layar—berjalan konsisten pada display 60Hz, 90Hz, 120Hz, hingga 144Hz.
-- ♻️ **Zero-GC Object Pooling:** Proyektil peluru dan sistem partikel menggunakan fixed-size memory pool untuk mengeliminasi micro-stuttering akibat Garbage Collection.
-- 🚀 **O(1) Spatial Bitmask Grid:** Validasi penempatan tower secepat kilat tanpa perlu iterasi array jalur.
-- 👆 **Hybrid Touch/Mouse Controls:** Dilengkapi *drag threshold* adaptif untuk mencegah mis-click saat seleksi atau relokasi tower di layar sentuh.
-- 🧠 **Strategic Pacing:** Musuh tidak akan bergerak di awal level/wave baru sebelum tower pertama ditempatkan.
-- ⏸️ **Auto-Pause on Resize:** Otomatis pause saat layar HP diputar (*rotation*) atau ukuran jendela browser berubah.
-- 🔊 **Procedural Web Audio Engine:** Efek tembakan, ledakan, dan upgrade di-synthesize secara native langsung di browser (tanpa aset audio `.mp3`/`.wav` eksternal).
-- ⚖️ **Dynamic Economy:** Manajemen gold terstruktur dengan pengembalian 70% saat tower dijual (*sell refund*).
-- ❤️ **Second Chance Mechanism:** Diberikan 1x kesempatan retry board reset ketika wave gagal untuk merancang ulang strategi.
+- ⚡ **Delta-Time Frame Normalization:** Game loop is decoupled from display refresh rates—runs at a uniform pace across 60Hz, 90Hz, 120Hz, and 144Hz displays.
+- ♻️ **Zero-GC Object Pooling:** Bullets and particle systems utilize fixed-size memory pools to eliminate micro-stutters caused by Garbage Collection spikes.
+- 🚀 **O(1) Spatial Bitmask Grid:** Instantaneous tower placement validation without iterating through path segment arrays.
+- 👆 **Hybrid Touch/Mouse Controls:** Features adaptive drag threshold logic to prevent accidental placements during selection or relocation on touch screens.
+- 🧠 **Strategic Pacing:** Enemies will not advance at the start of a level/wave until your first tower is placed.
+- ⏸️ **Auto-Pause on Resize:** Automatically halts gameplay when rotating devices or resizing the browser window to avoid desync.
+- 🔊 **Procedural Web Audio Engine:** Sound effects (shooting, explosions, upgrades) are synthesized natively via the browser audio context—no external `.mp3` or `.wav` files required.
+- ⚖️ **Dynamic Economy:** Strategic resource allocation with a 70% gold refund rate upon selling towers.
+- ❤️ **Second Chance Mechanism:** Grants 1 free board-reset retry per run when a wave is breached.
 
 ---
 
@@ -44,21 +44,21 @@ Play instantly in your browser (Mobile & Desktop supported) or download the Andr
 
 | Tower | Type | Cost | Range | Attributes & Tactical Role |
 | :--- | :---: | :---: | :---: | :--- |
-| **BLASTER** | `Cyan` | 50G | Medium | Damage dan jarak seimbang. Pilihan utama untuk pembuka wave awal. |
-| **RAPID** | `Yellow` | 100G | Short | Fire-rate sangat tinggi, jarak pendek. Paling efektif di sudut tikungan path. |
-| **SNIPER** | `Purple` | 150G | Extreme | Single-target heavy burst damage. Khusus eliminasi boss dari jarak jauh. |
+| **BLASTER** | `Cyan` | 50G | Medium | Balanced damage and range. Primary baseline tower for initial waves. |
+| **RAPID** | `Yellow` | 100G | Short | Extremely high fire rate, lower range. Most effective along tight path bends. |
+| **SNIPER** | `Purple` | 150G | Extreme | Single-target heavy burst damage. Tailored for taking down armored bosses. |
 
 ---
 
 ## 🕹️ How to Play
 
-1. **Build Tower:** Klik/tap tipe tower di panel bawah, lalu klik/tap pada area grid kosong di luar jalur musuh.
-2. **Move Tower:** Tekan dan tahan tower yang sudah berdiri, lalu drag ke slot kosong lain untuk reposisi.
-3. **Upgrade & Sell:** Tap tower yang aktif untuk membuka action panel (Upgrade stats level 1–5 atau Sell untuk refund gold).
+1. **Build Tower:** Click/tap a tower icon from the bottom panel, then click/tap any empty grid tile outside the enemy route.
+2. **Move Tower:** Press and hold an active tower, then drag it to a valid empty slot to reposition.
+3. **Upgrade & Sell:** Tap an existing tower to display the action panel (Upgrade stats up to Lv5 or Sell for a gold refund).
 4. **Targeting Priority:**
-   - **Blaster & Sniper:** Mengunci Boss terlebih dahulu; jika tidak ada, menarget musuh yang posisinya paling depan.
-   - **Rapid:** Selalu memprioritaskan musuh terdepan dalam jangkauan tembaknya.
-5. **Survive:** Kalahkan Boss setiap kelipatan wave ke-3 dan adaptasi strategi Anda di layout peta baru setiap 5 wave.
+   - **Blaster & Sniper:** Target Boss units first; if none are present, target the lead enemy on the path.
+   - **Rapid:** Always focuses on the first enemy within reach.
+5. **Survive:** Defeat Boss encounters every 3 waves and adjust defenses to shifting map paths every 5 waves.
 
 ---
 
@@ -84,13 +84,13 @@ Play instantly in your browser (Mobile & Desktop supported) or download the Andr
 
 ## 🤝 Contributing
 
-Kontribusi terbuka untuk pengembangan fitur baru maupun optimasi:
+Contributions for new features, balance adjustments, or engine enhancements are welcome:
 
-1. Fork repository ini
-2. Buat branch fitur baru (`git checkout -b feature/NamaFitur`)
-3. Commit perubahan (`git commit -m 'feat: Add some feature'`)
-4. Push ke branch (`git push origin feature/NamaFitur`)
-5. Ajukan **Pull Request**
+1. Fork this repository
+2. Create your feature branch (`git checkout -b feature/NewFeature`)
+3. Commit your changes (`git commit -m 'feat: Add some feature'`)
+4. Push to the branch (`git push origin feature/NewFeature`)
+5. Open a **Pull Request**
 
 ---
 
