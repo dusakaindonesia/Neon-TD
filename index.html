@@ -656,21 +656,26 @@
             this.x = pathPoints[0].x * GAME_CONFIG.TILE_SIZE;
             this.y = pathPoints[0].y * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE/2;
             this.isBoss = isBoss; this.isFragment = false;
-            const levelMultiplier = 1 + ((gameLevel - 1) * 0.6);
-            const waveMultiplier = 1 + (wave * 0.15);
+            const levelMultiplier = 1 + ((gameLevel - 1) * 0.45); // Nerf HP scaling sedikit
+            const waveMultiplier = 1 + (wave * 0.12);
             const totalMultiplier = waveMultiplier * levelMultiplier;
 
             if (this.isBoss) {
-                this.radius = 22; this.speed = ENEMY_CONFIG.BOSS.BASE_SPEED * Math.max(0.8, waveSpeedFactor);
+                this.radius = 22; 
+                this.speed = ENEMY_CONFIG.BOSS.BASE_SPEED * Math.max(0.7, waveSpeedFactor);
                 this.maxHp = (ENEMY_CONFIG.BOSS.HP_BASE * totalMultiplier) * 2;
                 this.color = ENEMY_CONFIG.BOSS.COLOR; this.glowColor = currentTheme.primary;
                 this.bounty = ENEMY_CONFIG.BOSS.BOUNTY_BASE * gameLevel;
             } else {
                 this.radius = 12;
-                const speedWaveBonus = wave * 0.03; const speedLevelBonus = (gameLevel - 1) * 0.15;
+                // SPEED TUNING: Dibuat lebih santai agar tower sempat menembak
+                const speedWaveBonus = wave * 0.012; 
+                const speedLevelBonus = (gameLevel - 1) * 0.06;
                 this.speed = ENEMY_CONFIG.NORMAL.BASE_SPEED + speedWaveBonus + speedLevelBonus;
-                this.speed = Math.min(this.speed, 2.5); this.speed *= waveSpeedFactor;
-                this.speed += (Math.random() * 0.2 - 0.1); this.speed = Math.max(0.5, this.speed);
+                this.speed = Math.min(this.speed, 1.85); // Cap max diturunkan dari 2.5
+                this.speed *= waveSpeedFactor;
+                this.speed += (Math.random() * 0.15 - 0.075); 
+                this.speed = Math.max(0.5, this.speed);
                 this.maxHp = ENEMY_CONFIG.NORMAL.HP_BASE * totalMultiplier;
                 this.color = ENEMY_CONFIG.NORMAL.COLOR; this.glowColor = ENEMY_CONFIG.NORMAL.COLOR;
                 this.bounty = ENEMY_CONFIG.NORMAL.BOUNTY_BASE + (gameLevel * 3);
