@@ -1,25 +1,24 @@
 <!--
     NEON TOWER DEFENSE
-    Version: 1.0.1 (Credits Added - High Performance Optimized)
+    Version: 1.0.4 (Fixed Resume Wave State & Persistent Game Loop)
     Status: Stable & Golden Master
-
-    Features Locked:
-    - Credits Footer added to Main Menu
-    - Wave Progress Indicator
-    - Visual Path Markers
-    - Fixed Resume & Retry Logic
-    - Auto-pause on Resize
-    - 4 Core Optimizations: Delta-Time, Object Pooling, Grid Bitmask, Squared Distance
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Neon Tower Defense v1.0.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+        }
 
         body {
             background-color: #050505;
@@ -30,6 +29,10 @@
             user-select: none;
             -webkit-user-select: none;
             touch-action: none;
+            padding-top: var(--sat);
+            padding-bottom: var(--sab);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
         }
 
         canvas {
@@ -77,18 +80,178 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
+
+        /* --- RESPONSIVE LANDSCAPE --- */
+        @media (orientation: landscape) and (max-height: 550px) {
+            #topHeaderBar {
+                top: 50% !important;
+                bottom: auto !important;
+                transform: translateY(-50%) !important;
+                width: auto !important;
+                max-width: none !important;
+                padding: 0 !important;
+                position: absolute !important;
+                pointer-events: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 4px !important;
+            }
+
+            #gameTitle {
+                display: none !important;
+            }
+
+            .top-action-bar {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: center !important;
+                padding: 0 !important;
+            }
+
+            #muteBtn {
+                position: static !important;
+                width: 100% !important;
+                max-width: 68px !important;
+                padding: 2px 4px !important;
+                font-size: 9px !important;
+                text-align: center !important;
+            }
+
+            #hudBorder {
+                flex-direction: column !important;
+                gap: 3px !important;
+                padding: 4px 6px !important;
+                transform: scale(0.85);
+                transform-origin: center center;
+                pointer-events: auto !important;
+            }
+
+            #hudBorder > div {
+                border-left: none !important;
+                border-right: none !important;
+                padding: 1px 0 !important;
+            }
+
+            /* Flip HUD vs Build Panel */
+            .dock-right ~ #topHeaderBar,
+            body:has(#buildPanel.dock-right) #topHeaderBar,
+            #topHeaderBar.dock-left {
+                left: calc(8px + var(--sal)) !important;
+                right: auto !important;
+            }
+
+            .dock-left ~ #topHeaderBar,
+            body:has(#buildPanel.dock-left) #topHeaderBar,
+            #topHeaderBar.dock-right {
+                right: calc(8px + var(--sar)) !important;
+                left: auto !important;
+            }
+
+            #buildPanel, #actionPanel {
+                bottom: auto !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                flex-direction: column !important;
+                padding: 6px 4px !important;
+                gap: 5px !important;
+            }
+
+            .dock-right {
+                right: calc(8px + var(--sar)) !important;
+                left: auto !important;
+            }
+
+            .dock-left {
+                left: calc(8px + var(--sal)) !important;
+                right: auto !important;
+            }
+
+            .tower-btn {
+                width: 62px !important;
+                padding: 3px 2px !important;
+            }
+            .tower-btn div {
+                width: 14px !important;
+                height: 14px !important;
+                margin-bottom: 2px !important;
+            }
+            .tower-btn span {
+                font-size: 8px !important;
+            }
+
+            .action-btn, #actionPanel div {
+                width: 66px !important;
+                padding: 3px 2px !important;
+            }
+            .action-btn span, #actionPanel div span {
+                font-size: 8px !important;
+            }
+        }
+
+        /* --- RESPONSIVE PORTRAIT --- */
+        @media (orientation: portrait), (min-height: 551px) {
+            #topHeaderBar {
+                top: calc(8px + var(--sat)) !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                padding-left: calc(8px + var(--sal)) !important;
+                padding-right: calc(8px + var(--sar)) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 6px !important;
+                pointer-events: none !important;
+            }
+
+            .top-action-bar {
+                width: 100% !important;
+                max-width: 480px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                pointer-events: auto !important;
+            }
+
+            #muteBtn {
+                position: static !important;
+                padding: 4px 8px !important;
+                font-size: 11px !important;
+            }
+
+            #hudBorder {
+                width: 100% !important;
+                max-width: 480px !important;
+                padding: 4px 8px !important;
+                transform: scale(0.92) !important;
+                transform-origin: top center !important;
+            }
+
+            #buildPanel, #actionPanel {
+                top: auto !important;
+                bottom: calc(12px + var(--sab)) !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                flex-direction: row !important;
+            }
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-center relative">
 
-<!-- Mute Button -->
-<button id="muteBtn" class="absolute top-4 right-4 z-20 bg-gray-800 text-white p-2 rounded border border-gray-600 text-xs">
-    🔊 ON
-</button>
-
-<!-- Header Stats -->
-<div class="absolute top-2 w-full max-w-5xl flex justify-between items-center px-4 z-10 pointer-events-none">
-    <h1 id="gameTitle" class="text-xl md:text-2xl font-bold italic tracking-widest text-cyan-400 neon-text transition-colors duration-1000 hidden md:block">NEON DEFENSE</h1>
+<!-- Header Wrapper -->
+<div id="topHeaderBar" class="absolute top-2 w-full max-w-5xl z-20 pointer-events-none flex flex-col items-center gap-1">
+    
+    <div class="top-action-bar flex justify-between items-center w-full px-2">
+        <h1 id="gameTitle" class="text-lg md:text-2xl font-bold italic tracking-widest text-cyan-400 neon-text">
+            NEON DEFENSE
+        </h1>
+        <button id="muteBtn" class="pointer-events-auto bg-gray-800 text-white px-2 py-1 rounded border border-gray-600 text-xs shadow-md active:scale-95 transition-all">
+            🔊 ON
+        </button>
+    </div>
 
     <div class="flex gap-2 md:gap-4 pointer-events-auto hud-panel px-4 py-2 rounded-lg border-opacity-50 transition-colors duration-1000 w-full md:w-auto justify-between md:justify-center" id="hudBorder">
         <div class="flex flex-col items-center">
@@ -99,12 +262,10 @@
             <span class="text-[8px] md:text-[10px] text-gray-400">LIVES</span>
             <span id="lives" class="text-base md:text-lg text-red-500 font-bold">3</span>
         </div>
-
         <div class="flex flex-col items-center border-l border-r border-gray-700 px-2 md:px-4 bg-gray-800/50 rounded">
             <span class="text-[8px] md:text-[10px] text-cyan-200">SLOTS</span>
             <span id="slotsDisplay" class="text-base md:text-lg text-cyan-400 font-bold">0/4</span>
         </div>
-
         <div class="flex flex-col items-center">
             <span class="text-[8px] md:text-[10px] text-gray-400">LEVEL</span>
             <span id="levelDisplay" class="text-base md:text-lg text-white font-bold">1</span>
@@ -117,7 +278,11 @@
 </div>
 
 <!-- Tower BUILD Panel -->
-<div id="buildPanel" class="absolute bottom-4 z-10 hud-panel px-4 py-2 rounded-lg flex gap-3 pointer-events-auto">
+<div id="buildPanel" class="dock-right absolute bottom-4 z-10 hud-panel px-4 py-2 rounded-lg flex gap-3 pointer-events-auto">
+    <button id="dockToggleBtn" onclick="toggleDockSide()" class="hidden landscape:flex items-center justify-center bg-gray-800 border border-cyan-500/50 text-cyan-400 rounded py-1 px-1 text-[9px] font-bold hover:bg-gray-700 active:scale-95 transition-all mb-1 tracking-wider" title="Switch Side">
+        ◀ LEFT
+    </button>
+
     <button id="btnBlaster" class="tower-btn active flex flex-col items-center p-2 rounded w-20 md:w-24" style="color: #0ff;" onclick="selectBuildType('BLASTER')">
         <div class="w-5 h-5 md:w-6 md:h-6 bg-cyan-400 rounded-full mb-1 shadow-[0_0_10px_#0ff]"></div>
         <span class="font-bold text-[10px] md:text-xs">BLASTER</span>
@@ -136,7 +301,7 @@
 </div>
 
 <!-- Tower ACTION Panel -->
-<div id="actionPanel" class="absolute bottom-4 z-20 hud-panel px-4 py-3 rounded-lg flex gap-3 pointer-events-auto hidden">
+<div id="actionPanel" class="dock-right absolute bottom-4 z-20 hud-panel px-4 py-3 rounded-lg flex gap-3 pointer-events-auto hidden">
     <button onclick="actionUpgrade()" id="btnUpgrade" class="action-btn bg-green-900/80 border-green-500 text-green-400 px-4 py-2 rounded flex flex-col items-center w-28">
         <span class="text-xs">UPGRADE</span>
         <span id="upgradeCostText" class="text-[10px] text-white font-bold">150G</span>
@@ -213,6 +378,38 @@
 </div>
 
 <script>
+    // --- SCREEN WAKE LOCK MANAGER ---
+    const WakeLockManager = {
+        sentinel: null,
+        isSupported: 'wakeLock' in navigator,
+
+        request: async function() {
+            if (!this.isSupported || this.sentinel !== null) return;
+            try {
+                this.sentinel = await navigator.wakeLock.request('screen');
+                this.sentinel.addEventListener('release', () => {
+                    this.sentinel = null;
+                });
+            } catch (err) {
+                console.warn(`Wake Lock Error: ${err.name}, ${err.message}`);
+            }
+        },
+
+        release: function() {
+            if (this.sentinel !== null) {
+                this.sentinel.release().then(() => {
+                    this.sentinel = null;
+                }).catch(() => {});
+            }
+        }
+    };
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isGameRunning && !isPaused) {
+            WakeLockManager.request();
+        }
+    });
+
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -232,7 +429,13 @@
             this.isMuted = !this.isMuted;
             const btn = document.getElementById('muteBtn');
             btn.innerText = this.isMuted ? '🔇 OFF' : '🔊 ON';
-            btn.className = this.isMuted ? 'absolute top-4 right-4 z-20 bg-red-900 text-white p-2 rounded border border-red-700 text-xs' : 'absolute top-4 right-4 z-20 bg-gray-800 text-white p-2 rounded border border-gray-600 text-xs';
+            if (this.isMuted) {
+                btn.classList.remove('bg-gray-800', 'border-gray-600');
+                btn.classList.add('bg-red-900', 'border-red-700');
+            } else {
+                btn.classList.remove('bg-red-900', 'border-red-700');
+                btn.classList.add('bg-gray-800', 'border-gray-600');
+            }
         },
         playTone: function(freq, type, duration, vol = 0.1) {
             if (this.isMuted || !this.ctx) return;
@@ -296,16 +499,15 @@
     };
 
     document.getElementById('muteBtn').addEventListener('click', () => SoundSystem.toggleMute());
-
-    // --- 1. CONFIGURATION ---
+	// --- 1. CONFIGURATION ---
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const SAVE_KEY = 'neon_td_save_v1';
     const SCORE_KEY = 'neon_td_highscore';
 
     const GAME_CONFIG = {
         TILE_SIZE: 40,
-        GRID_COLS: 20, // 800 / 40
-        GRID_ROWS: 15, // 600 / 40
+        GRID_COLS: 20,
+        GRID_ROWS: 15,
         START_GOLD: 350,
         START_LIVES: 3,
         START_RETRIES: 1,
@@ -349,7 +551,6 @@
         [{x: 0, y: 0}, {x: 19, y: 0}, {x: 19, y: 14}, {x: 1, y: 14}, {x: 1, y: 2}, {x: 17, y: 2}, {x: 17, y: 12}, {x: 3, y: 12}, {x: 3, y: 4}, {x: 15, y: 4}, {x: 15, y: 10}, {x: 5, y: 10}, {x: 20, y: 10}]
     ];
 
-    // --- OPTIMASI 3: SPATIAL GRID BITMASK (O(1) Check) ---
     const gridOccupied = new Uint8Array(GAME_CONFIG.GRID_COLS * GAME_CONFIG.GRID_ROWS);
 
     function bakePathToGrid(points) {
@@ -377,124 +578,7 @@
         return gridOccupied[row * GAME_CONFIG.GRID_COLS + col] === 1;
     }
 
-    // --- 2. GLOBAL STATE ---
-    const els = {
-        gold: document.getElementById("gold"),
-        lives: document.getElementById("lives"),
-        wave: document.getElementById("wave"),
-        level: document.getElementById("levelDisplay"),
-        slots: document.getElementById("slotsDisplay"),
-        overlay: document.getElementById("overlay"),
-        title: document.getElementById("gameTitle"),
-        notify: document.getElementById("waveNotify"),
-        notifyText: document.getElementById("waveNotifyText"),
-        notifySub: document.getElementById("waveNotifySub"),
-        buildPanel: document.getElementById("buildPanel"),
-        actionPanel: document.getElementById("actionPanel"),
-        btnUpgrade: document.getElementById("btnUpgrade"),
-        txtUpgrade: document.getElementById("upgradeCostText"),
-        txtSell: document.getElementById("sellValueText"),
-        overlayDesc: document.getElementById("overlayDesc"),
-        moveIndicator: document.getElementById("moveIndicator"),
-        resumeBtn: document.getElementById("resumeBtn"),
-        retryBtn: document.getElementById("retryBtn"),
-        highScoreText: document.getElementById("highScoreText"),
-        confirmModal: document.getElementById("confirmModal"),
-        confirmTitle: document.getElementById("confirmTitle"),
-        confirmCostDisplay: document.getElementById("confirmCostDisplay"),
-        btns: {
-            BLASTER: document.getElementById("btnBlaster"),
-            RAPID: document.getElementById("btnRapid"),
-            SNIPER: document.getElementById("btnSniper")
-        }
-    };
-
-    let gold = GAME_CONFIG.START_GOLD;
-    let lives = GAME_CONFIG.START_LIVES;
-    let retriesLeft = GAME_CONFIG.START_RETRIES;
-    let wave = 1;
-    let gameLevel = 1;
-    let currentTheme = THEMES[0];
-    let pathPoints = PATHS[0];
-    let isGameRunning = false;
-    let isPaused = false;
-
-    let selectedBuildType = null;
-    let selectedTower = null;
-    let maxTowerLimit = 4;
-    let waveSpeedFactor = 1.0;
-
-    let isDragging = false;
-    let draggedTower = null;
-    let dragCandidate = null;
-    let dragStartMousePos = { x: 0, y: 0 };
-    let dragStartPos = { x: 0, y: 0 };
-    let isMovingMode = false;
-
-    let pendingActionType = null;
-
-    let waveState = WAVE_STATE.IDLE;
-    let enemiesToSpawn = 0;
-    let spawnTimer = 0;
-    let spawnInterval = 60;
-    let waveDelayTimer = 0;
-    let animationFrameId;
-
-    // --- OPTIMASI 1: DELTA TIME TRACKING ---
-    let lastTime = 0;
-
-    const mouse = { x: -1000, y: -1000 };
-    let enemies = [], towers = [];
-    let notificationTimeout;
-
-    // --- STORAGE MANAGER ---
-    const StorageManager = {
-        save: function() {
-            if (lives <= 0 && retriesLeft <= 0) return;
-            const saveData = {
-                gold, lives, wave, gameLevel, waveSpeedFactor, maxTowerLimit, retriesLeft,
-                themeIndex: THEMES.indexOf(currentTheme),
-                towers: towers.map(t => ({
-                    type: t.type, x: t.x, y: t.y, level: t.level, totalSpent: t.totalSpent,
-                    damage: t.damage, range: t.range, maxCooldown: t.maxCooldown
-                }))
-            };
-            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-            const currentHigh = parseInt(localStorage.getItem(SCORE_KEY) || '0');
-            if (wave > currentHigh) localStorage.setItem(SCORE_KEY, wave);
-        },
-        load: function() {
-            const data = localStorage.getItem(SAVE_KEY);
-            if (!data) return false;
-            try {
-                const save = JSON.parse(data);
-                gold = save.gold; lives = save.lives; wave = save.wave;
-                gameLevel = save.gameLevel; waveSpeedFactor = save.waveSpeedFactor;
-                maxTowerLimit = save.maxTowerLimit;
-                retriesLeft = save.retriesLeft !== undefined ? save.retriesLeft : GAME_CONFIG.START_RETRIES;
-
-                applyTheme(save.themeIndex);
-                const pathIndex = (save.gameLevel - 1) % PATHS.length;
-                pathPoints = PATHS[pathIndex];
-                bakePathToGrid(pathPoints);
-
-                towers = save.towers.map(tData => {
-                    const t = new Tower(tData.x, tData.y, tData.type);
-                    t.level = tData.level; t.totalSpent = tData.totalSpent;
-                    t.damage = tData.damage; t.range = tData.range;
-                    t.rangeSq = t.range * t.range;
-                    t.maxCooldown = tData.maxCooldown; t.color = TOWER_CONFIG[tData.type].color;
-                    return t;
-                });
-                return true;
-            } catch (e) { return false; }
-        },
-        clear: function() { localStorage.removeItem(SAVE_KEY); },
-        hasSave: function() { return !!localStorage.getItem(SAVE_KEY); },
-        getHighScore: function() { return parseInt(localStorage.getItem(SCORE_KEY) || '0'); }
-    };
-
-    // --- 4. CLASSES & OPTIMASI 2: OBJECT POOLING ---
+    // --- OBJECT POOLING ---
     class Particle {
         constructor() {
             this.active = false;
@@ -580,11 +664,9 @@
     }
 
     const ParticlePool = {
-        pool: [],
-        active: [],
+        pool: [], active: [],
         init: function(size = 300) {
-            this.pool = [];
-            this.active = [];
+            this.pool = []; this.active = [];
             for (let i = 0; i < size; i++) this.pool.push(new Particle());
         },
         spawn: function(x, y, color, speedMulti = 1) {
@@ -614,11 +696,9 @@
     };
 
     const BulletPool = {
-        pool: [],
-        active: [],
+        pool: [], active: [],
         init: function(size = 60) {
-            this.pool = [];
-            this.active = [];
+            this.pool = []; this.active = [];
             for (let i = 0; i < size; i++) this.pool.push(new Bullet());
         },
         spawn: function(x, y, target, damage, color, type) {
@@ -650,14 +730,15 @@
     ParticlePool.init();
     BulletPool.init();
 
+    // --- ENEMY CLASS ---
     class Enemy {
-        constructor(wave, isBoss = false) {
+        constructor(waveNum, isBoss = false) {
             this.pathIndex = 0;
             this.x = pathPoints[0].x * GAME_CONFIG.TILE_SIZE;
             this.y = pathPoints[0].y * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE/2;
             this.isBoss = isBoss; this.isFragment = false;
-            const levelMultiplier = 1 + ((gameLevel - 1) * 0.45); // Nerf HP scaling sedikit
-            const waveMultiplier = 1 + (wave * 0.12);
+            const levelMultiplier = 1 + ((gameLevel - 1) * 0.45);
+            const waveMultiplier = 1 + (waveNum * 0.12);
             const totalMultiplier = waveMultiplier * levelMultiplier;
 
             if (this.isBoss) {
@@ -668,11 +749,10 @@
                 this.bounty = ENEMY_CONFIG.BOSS.BOUNTY_BASE * gameLevel;
             } else {
                 this.radius = 12;
-                // SPEED TUNING: Dibuat lebih santai agar tower sempat menembak
-                const speedWaveBonus = wave * 0.012; 
+                const speedWaveBonus = waveNum * 0.012; 
                 const speedLevelBonus = (gameLevel - 1) * 0.06;
                 this.speed = ENEMY_CONFIG.NORMAL.BASE_SPEED + speedWaveBonus + speedLevelBonus;
-                this.speed = Math.min(this.speed, 1.85); // Cap max diturunkan dari 2.5
+                this.speed = Math.min(this.speed, 1.85);
                 this.speed *= waveSpeedFactor;
                 this.speed += (Math.random() * 0.15 - 0.075); 
                 this.speed = Math.max(0.5, this.speed);
@@ -719,12 +799,13 @@
         }
     }
 
+    // --- TOWER CLASS ---
     class Tower {
         constructor(x, y, typeKey) {
             this.x = x; this.y = y; this.type = typeKey;
             const stats = TOWER_CONFIG[typeKey];
             this.level = 1; this.range = stats.range;
-            this.rangeSq = this.range * this.range; // Precalculated Squared Radius
+            this.rangeSq = this.range * this.range;
             this.damage = stats.damage;
             this.maxCooldown = stats.cooldown; this.color = stats.color;
             this.cooldown = 0; this.angle = 0; this.totalSpent = stats.cost;
@@ -738,7 +819,7 @@
             if (this.type === 'BLASTER') { this.damage *= 1.8; this.range += 15; this.maxCooldown *= 0.9; }
             else if (this.type === 'RAPID') { this.damage *= 1.5; this.range += 10; this.maxCooldown *= 0.85; }
             else if (this.type === 'SNIPER') { this.damage *= 2.2; this.range += 40; this.maxCooldown *= 0.95; }
-            this.rangeSq = this.range * this.range; // Update squared radius
+            this.rangeSq = this.range * this.range;
         }
         update(dtMulti) {
             if (this.cooldown > 0) this.cooldown -= dtMulti;
@@ -762,10 +843,8 @@
                 }
             }
         }
-        // --- OPTIMASI 4: SQUARED DISTANCE LOGIC ---
         inRange(e) {
-            const dx = e.x - this.x;
-            const dy = e.y - this.y;
+            const dx = e.x - this.x; const dy = e.y - this.y;
             return (dx * dx + dy * dy) <= this.rangeSq;
         }
         draw(overrideX = null, overrideY = null, isGhost = false) {
@@ -792,18 +871,202 @@
         }
     }
 
-    // --- 5. LOGIC & HANDLERS ---
-
-    function onMainButtonClick() {
-        if (isPaused) {
-            resumeGame();
-        } else {
-            initGame(false);
+    // --- 2. GLOBAL STATE ---
+    const els = {
+        gold: document.getElementById("gold"),
+        lives: document.getElementById("lives"),
+        wave: document.getElementById("wave"),
+        level: document.getElementById("levelDisplay"),
+        slots: document.getElementById("slotsDisplay"),
+        overlay: document.getElementById("overlay"),
+        title: document.getElementById("gameTitle"),
+        notify: document.getElementById("waveNotify"),
+        notifyText: document.getElementById("waveNotifyText"),
+        notifySub: document.getElementById("waveNotifySub"),
+        buildPanel: document.getElementById("buildPanel"),
+        actionPanel: document.getElementById("actionPanel"),
+        btnUpgrade: document.getElementById("btnUpgrade"),
+        txtUpgrade: document.getElementById("upgradeCostText"),
+        txtSell: document.getElementById("sellValueText"),
+        overlayDesc: document.getElementById("overlayDesc"),
+        moveIndicator: document.getElementById("moveIndicator"),
+        resumeBtn: document.getElementById("resumeBtn"),
+        retryBtn: document.getElementById("retryBtn"),
+        highScoreText: document.getElementById("highScoreText"),
+        confirmModal: document.getElementById("confirmModal"),
+        confirmTitle: document.getElementById("confirmTitle"),
+        confirmCostDisplay: document.getElementById("confirmCostDisplay"),
+        btns: {
+            BLASTER: document.getElementById("btnBlaster"),
+            RAPID: document.getElementById("btnRapid"),
+            SNIPER: document.getElementById("btnSniper")
         }
+    };
+
+    let gold = GAME_CONFIG.START_GOLD;
+    let lives = GAME_CONFIG.START_LIVES;
+    let retriesLeft = GAME_CONFIG.START_RETRIES;
+    let wave = 1;
+    let gameLevel = 1;
+    let currentTheme = THEMES[0];
+    let pathPoints = PATHS[0];
+    let isGameRunning = false;
+    let isPaused = false;
+
+    let selectedBuildType = null;
+    let selectedTower = null;
+    let maxTowerLimit = 4;
+    let waveSpeedFactor = 1.0;
+
+    let isDragging = false;
+    let draggedTower = null;
+    let dragCandidate = null;
+    let dragStartMousePos = { x: 0, y: 0 };
+    let dragStartPos = { x: 0, y: 0 };
+
+    let pendingActionType = null;
+
+    let waveState = WAVE_STATE.IDLE;
+    let enemiesToSpawn = 0;
+    let spawnTimer = 0;
+    let spawnInterval = 60;
+    let waveDelayTimer = 0;
+    let animationFrameId;
+    let lastTime = 0;
+
+    const mouse = { x: -1000, y: -1000 };
+    let enemies = [], towers = [];
+    let notificationTimeout;
+
+    // --- DOCK SIDE CONTROLLER ---
+    let currentDockSide = localStorage.getItem('neon_td_dock') || 'dock-right';
+
+    function applyDockSide(side) {
+        const buildPanel = document.getElementById('buildPanel');
+        const actionPanel = document.getElementById('actionPanel');
+        const headerBar = document.getElementById('topHeaderBar');
+        const toggleBtn = document.getElementById('dockToggleBtn');
+
+        if (!buildPanel || !actionPanel) return;
+
+        buildPanel.classList.remove('dock-left', 'dock-right');
+        actionPanel.classList.remove('dock-left', 'dock-right');
+        if (headerBar) headerBar.classList.remove('dock-left', 'dock-right');
+
+        buildPanel.classList.add(side);
+        actionPanel.classList.add(side);
+
+        const oppositeSide = (side === 'dock-right') ? 'dock-left' : 'dock-right';
+        if (headerBar) headerBar.classList.add(oppositeSide);
+
+        if (toggleBtn) {
+            toggleBtn.innerText = (side === 'dock-right') ? '◀ LEFT' : 'RIGHT ▶';
+        }
+
+        localStorage.setItem('neon_td_dock', side);
+    }
+
+    function toggleDockSide() {
+        currentDockSide = (currentDockSide === 'dock-right') ? 'dock-left' : 'dock-right';
+        applyDockSide(currentDockSide);
+    }
+
+    applyDockSide(currentDockSide);
+	// --- STORAGE MANAGER (WITH WAVE PROGRESSION INTEGRITY) ---
+    const StorageManager = {
+        save: function() {
+            if (lives <= 0 && retriesLeft <= 0) return;
+            const saveData = {
+                gold, lives, wave, gameLevel, waveSpeedFactor, maxTowerLimit, retriesLeft,
+                waveState, enemiesToSpawn, spawnTimer, spawnInterval, waveDelayTimer,
+                themeIndex: THEMES.indexOf(currentTheme),
+                towers: towers.map(t => ({
+                    type: t.type, x: t.x, y: t.y, level: t.level, totalSpent: t.totalSpent,
+                    damage: t.damage, range: t.range, maxCooldown: t.maxCooldown
+                })),
+                enemies: enemies.map(e => ({
+                    pathIndex: e.pathIndex, x: e.x, y: e.y, targetX: e.targetX, targetY: e.targetY,
+                    hp: e.hp, maxHp: e.maxHp, speed: e.speed, radius: e.radius, isBoss: e.isBoss,
+                    isFragment: e.isFragment, bounty: e.bounty, color: e.color, glowColor: e.glowColor
+                }))
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+            const currentHigh = parseInt(localStorage.getItem(SCORE_KEY) || '0');
+            if (wave > currentHigh) localStorage.setItem(SCORE_KEY, wave);
+        },
+        load: function() {
+            const data = localStorage.getItem(SAVE_KEY);
+            if (!data) return false;
+            try {
+                const save = JSON.parse(data);
+                gold = save.gold; 
+                lives = save.lives; 
+                wave = save.wave;
+                gameLevel = save.gameLevel; 
+                waveSpeedFactor = save.waveSpeedFactor;
+                maxTowerLimit = save.maxTowerLimit;
+                retriesLeft = save.retriesLeft !== undefined ? save.retriesLeft : GAME_CONFIG.START_RETRIES;
+
+                waveState = save.waveState || WAVE_STATE.SPAWNING;
+                enemiesToSpawn = save.enemiesToSpawn !== undefined ? save.enemiesToSpawn : 0;
+                spawnTimer = save.spawnTimer || 0;
+                spawnInterval = save.spawnInterval || 60;
+                waveDelayTimer = save.waveDelayTimer || 0;
+
+                applyTheme(save.themeIndex !== undefined ? save.themeIndex : 0);
+                const pathIndex = (save.gameLevel - 1) % PATHS.length;
+                pathPoints = PATHS[pathIndex];
+                bakePathToGrid(pathPoints);
+
+                towers = (save.towers || []).map(tData => {
+                    const t = new Tower(tData.x, tData.y, tData.type);
+                    t.level = tData.level; 
+                    t.totalSpent = tData.totalSpent;
+                    t.damage = tData.damage; 
+                    t.range = tData.range;
+                    t.rangeSq = t.range * t.range;
+                    t.maxCooldown = tData.maxCooldown; 
+                    t.color = TOWER_CONFIG[tData.type].color;
+                    return t;
+                });
+
+                enemies = (save.enemies || []).map(eData => {
+                    const e = new Enemy(wave, eData.isBoss);
+                    e.pathIndex = eData.pathIndex;
+                    e.x = eData.x;
+                    e.y = eData.y;
+                    e.targetX = eData.targetX;
+                    e.targetY = eData.targetY;
+                    e.hp = eData.hp;
+                    e.maxHp = eData.maxHp;
+                    e.speed = eData.speed;
+                    e.radius = eData.radius;
+                    e.isFragment = eData.isFragment;
+                    e.bounty = eData.bounty;
+                    e.color = eData.color;
+                    e.glowColor = eData.glowColor;
+                    return e;
+                });
+
+                return true;
+            } catch (e) { return false; }
+        },
+        clear: function() { localStorage.removeItem(SAVE_KEY); },
+        hasSave: function() { return !!localStorage.getItem(SAVE_KEY); },
+        getHighScore: function() { return parseInt(localStorage.getItem(SCORE_KEY) || '0'); }
+    };
+
+    // --- 5. LOGIC & HANDLERS ---
+    function onMainButtonClick() {
+        if (isGameRunning && isPaused) {
+            resumeGame();
+            return;
+        }
+        initGame(false);
     }
 
     function onResumeButtonClick() {
-        initGame(true);
+        resumeGame();
     }
 
     function onRetryButtonClick() {
@@ -811,8 +1074,7 @@
             if (StorageManager.load()) {
                 towers.forEach(t => { gold += t.totalSpent; });
                 towers = []; enemies = [];
-                BulletPool.clear();
-                ParticlePool.clear();
+                BulletPool.clear(); ParticlePool.clear();
                 waveState = WAVE_STATE.WAITING_FIRST_TOWER;
                 waveDelayTimer = 0; spawnTimer = 0;
                 isGameRunning = true; isPaused = false;
@@ -832,49 +1094,85 @@
     }
 
     function pauseGame() {
-        if (!isGameRunning) return;
+        if (!isGameRunning || isPaused) return;
+        
         isPaused = true;
+        WakeLockManager.release();
+        StorageManager.save();
 
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
 
         els.overlay.classList.remove('hidden');
         document.getElementById("overlayTitle").innerText = "GAME PAUSED";
         document.getElementById("overlayTitle").className = "text-4xl md:text-5xl font-bold text-yellow-500 mb-4 neon-text text-center";
-        els.overlayDesc.innerHTML = "<p class='text-lg mb-4'>Game paused.<br>Tap below to continue.</p>";
+        els.overlayDesc.innerHTML = `<p class='text-lg mb-2'>Screen Rotated / Game Paused.</p><p class='text-cyan-400 font-bold'>Wave ${wave} - Level ${gameLevel}</p>`;
 
-        document.getElementById("startBtn").innerText = "RESUME";
-        els.resumeBtn.classList.add("hidden");
+        els.resumeBtn.classList.remove("hidden");
+        els.resumeBtn.innerText = "RESUME GAME";
+        
+        document.getElementById("startBtn").innerText = "RESTART (NEW GAME)";
         els.retryBtn.classList.add("hidden");
     }
 
     function resumeGame() {
-        isPaused = false;
-        els.overlay.classList.add('hidden');
+        SoundSystem.init();
 
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        lastTime = performance.now();
-        gameLoop(lastTime);
+        // 1. Jika game sedang berjalan di memori dan hanya dipause
+        if (isGameRunning && isPaused) {
+            isPaused = false;
+            WakeLockManager.request();
+            els.overlay.classList.add('hidden');
+
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            lastTime = performance.now();
+            animationFrameId = requestAnimationFrame(gameLoop);
+            return;
+        }
+
+        // 2. Jika dipanggil dari status luar / tab baru / refresh
+        if (StorageManager.hasSave()) {
+            initGame(true);
+            return;
+        }
+
+        // 3. Fallback jika tidak ada data save
+        initGame(false);
     }
 
-    window.addEventListener("resize", () => {
-        if (isGameRunning && !isPaused) {
-            setTimeout(pauseGame, 50);
-        }
+    let screenChangeTimer = null;
+    function handleScreenChange() {
+        clearTimeout(screenChangeTimer);
+        screenChangeTimer = setTimeout(() => {
+            if (isGameRunning && !isPaused) {
+                pauseGame();
+            }
+        }, 200);
+
         isDragging = false;
         draggedTower = null;
         dragCandidate = null;
-    });
+    }
+
+    window.addEventListener("resize", handleScreenChange);
+    window.addEventListener("orientationchange", handleScreenChange);
 
     function showMainMenu() {
+        isGameRunning = false;
+        isPaused = false;
         const hasSave = StorageManager.hasSave();
         const highScore = StorageManager.getHighScore();
         els.highScoreText.innerText = `HIGH SCORE: WAVE ${highScore}`;
-
-        if (hasSave) els.resumeBtn.classList.remove('hidden');
-        else els.resumeBtn.classList.add('hidden');
+        
+        if (hasSave) {
+            els.resumeBtn.classList.remove('hidden');
+        } else {
+            els.resumeBtn.classList.add('hidden');
+        }
 
         els.retryBtn.classList.add('hidden');
-
         document.getElementById("overlayTitle").innerText = "NEON DEFENSE v1.0.0";
         document.getElementById("overlayTitle").className = "text-4xl md:text-5xl font-bold text-cyan-500 mb-4 neon-text text-center";
         document.getElementById("startBtn").innerText = "NEW GAME";
@@ -883,28 +1181,42 @@
     function initGame(isResume) {
         SoundSystem.init();
         if (isResume && StorageManager.load()) {
-            isGameRunning = true; isPaused = false;
-            waveState = WAVE_STATE.SPAWNING;
-            spawnTimer = 0;
-            setupEnemiesForWave();
+            WakeLockManager.request();
+            isGameRunning = true; 
+            isPaused = false;
+            
+            BulletPool.clear(); 
+            ParticlePool.clear();
+
+            // Jika restore wave yang kosong atau tidak valid, sesuaikan musuh
+            if (waveState === WAVE_STATE.SPAWNING && enemiesToSpawn <= 0 && enemies.length === 0) {
+                setupEnemiesForWave();
+            }
+
             showPersistentNotification("WELCOME BACK", `Resuming Wave ${wave}...`);
             setTimeout(() => showNotification(`WAVE ${wave}`, "INCOMING!", currentTheme.primary), 1000);
         } else {
+            WakeLockManager.request();
             gold = GAME_CONFIG.START_GOLD;
             lives = GAME_CONFIG.START_LIVES;
             retriesLeft = GAME_CONFIG.START_RETRIES;
-            wave = 1; gameLevel = 1;
+            wave = 1; 
+            gameLevel = 1;
             pathPoints = PATHS[0];
             bakePathToGrid(pathPoints);
             applyTheme(0);
-            enemies = []; towers = [];
-            BulletPool.clear();
+            enemies = []; 
+            towers = [];
+            BulletPool.clear(); 
             ParticlePool.clear();
-            isGameRunning = true; isPaused = false;
-            waveState = WAVE_STATE.WAITING_FIRST_TOWER; waveDelayTimer = 0;
+            isGameRunning = true; 
+            isPaused = false;
+            waveState = WAVE_STATE.WAITING_FIRST_TOWER; 
+            waveDelayTimer = 0;
             maxTowerLimit = GAME_CONFIG.BASE_MAX_TOWERS + 1;
             showPersistentNotification("PREPARE DEFENSES", "Enemies will move when the first tower is placed");
         }
+
         selectedBuildType = null;
         Object.keys(els.btns).forEach(key => els.btns[key].classList.remove('active'));
         updateUI();
@@ -975,21 +1287,6 @@
         }
     }
 
-    function finalizeUpgrade(isConfirmed) {
-        els.confirmModal.classList.add('hidden');
-        if (isConfirmed && selectedTower) {
-            const cost = getUpgradeCost(selectedTower);
-            if (gold >= cost) {
-                gold -= cost;
-                selectedTower.upgrade();
-                updateUI();
-                SoundSystem.playUpgrade();
-                for (let i = 0; i < 15; i++) ParticlePool.spawn(selectedTower.x, selectedTower.y, "#0f0");
-                selectTowerForAction(selectedTower);
-            }
-        }
-    }
-
     function actionSell() {
         if (!selectedTower) return;
         const sellValue = Math.floor(selectedTower.totalSpent * GAME_CONFIG.SELL_REFUND_RATE);
@@ -1011,6 +1308,7 @@
                     SoundSystem.playUpgrade();
                     for (let i = 0; i < 15; i++) ParticlePool.spawn(selectedTower.x, selectedTower.y, "#0f0");
                     selectTowerForAction(selectedTower);
+                    StorageManager.save();
                 }
             } else if (pendingActionType === 'SELL') {
                 const sellValue = Math.floor(selectedTower.totalSpent * GAME_CONFIG.SELL_REFUND_RATE);
@@ -1021,6 +1319,7 @@
                 for (let i = 0; i < 10; i++) ParticlePool.spawn(selectedTower.x, selectedTower.y, "#ff0");
                 updateUI();
                 deselectTower();
+                StorageManager.save();
             }
         }
         pendingActionType = null;
@@ -1041,13 +1340,12 @@
     }
 
     function startNextWave() {
-        StorageManager.save();
         wave++;
         maxTowerLimit = GAME_CONFIG.BASE_MAX_TOWERS + wave;
-        waveSpeedFactor = 0.8 + Math.random();
+        waveSpeedFactor = 0.75 + (Math.random() * 0.35);
         let speedLabel = "";
-        if (waveSpeedFactor > 1.4) speedLabel = " | FAST ENEMIES!";
-        else if (waveSpeedFactor < 1.0) speedLabel = " | SLOW & HEAVY";
+        if (waveSpeedFactor > 1.05) speedLabel = " | FAST ENEMIES!";
+        else if (waveSpeedFactor < 0.85) speedLabel = " | SLOW & HEAVY";
 
         const calculatedLevel = Math.floor((wave - 1) / 5) + 1;
         if (calculatedLevel > gameLevel) {
@@ -1066,13 +1364,19 @@
             spawnTimer = 0;
             setupEnemiesForWave();
         }
+        StorageManager.save();
         updateUI();
     }
 
     function setupEnemiesForWave() {
         const isBossWave = (wave % 3 === 0);
-        if (isBossWave) { enemiesToSpawn = 1; spawnInterval = 120; }
-        else { enemiesToSpawn = 5 + Math.floor(wave * 2) + (gameLevel * 2); spawnInterval = Math.max(15, 60 - wave); }
+        if (isBossWave) { 
+            enemiesToSpawn = 1; 
+            spawnInterval = 120; 
+        } else { 
+            enemiesToSpawn = 5 + Math.floor(wave * 2) + (gameLevel * 2); 
+            spawnInterval = Math.max(15, 60 - wave); 
+        }
     }
 
     function showNotification(t1, t2, c, duration = 3500) {
@@ -1122,12 +1426,9 @@
     }
 
     // --- INPUT & DRAG DROP SYSTEM ---
-
     function handleInputStart(x, y) {
-        if (!isGameRunning) return;
-
-        mouse.x = x;
-        mouse.y = y;
+        if (!isGameRunning || isPaused) return;
+        mouse.x = x; mouse.y = y;
 
         const gridX = Math.floor(x / GAME_CONFIG.TILE_SIZE) * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE / 2;
         const gridY = Math.floor(y / GAME_CONFIG.TILE_SIZE) * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE / 2;
@@ -1138,10 +1439,7 @@
             dragCandidate = clickedTower;
             dragStartMousePos = { x: x, y: y };
             dragStartPos = { x: clickedTower.x, y: clickedTower.y };
-
-            if (selectedTower !== clickedTower) {
-                selectTowerForAction(clickedTower);
-            }
+            if (selectedTower !== clickedTower) selectTowerForAction(clickedTower);
             return;
         }
 
@@ -1155,7 +1453,6 @@
 
             const gCol = Math.floor(gridX / GAME_CONFIG.TILE_SIZE);
             const gRow = Math.floor(gridY / GAME_CONFIG.TILE_SIZE);
-
             if (isGridOnPath(gCol, gRow)) return;
 
             if (towers.length >= maxTowerLimit) {
@@ -1181,6 +1478,7 @@
                     setupEnemiesForWave();
                     setTimeout(() => showNotification(`WAVE ${wave} INCOMING!`, "", currentTheme.primary), 500);
                 }
+                StorageManager.save();
             } else {
                 SoundSystem.playError(); showNotification("INSUFFICIENT GOLD", `Need ${typeData.cost}G`, "#f00", 1000);
             }
@@ -1188,13 +1486,11 @@
     }
 
     function handleInputMove(x, y) {
-        if (!isGameRunning) return;
-        mouse.x = x;
-        mouse.y = y;
+        if (!isGameRunning || isPaused) return;
+        mouse.x = x; mouse.y = y;
 
         if (dragCandidate && !isDragging) {
-            const dx = x - dragStartMousePos.x;
-            const dy = y - dragStartMousePos.y;
+            const dx = x - dragStartMousePos.x; const dy = y - dragStartMousePos.y;
             if ((dx * dx + dy * dy) > (GAME_CONFIG.DRAG_THRESHOLD * GAME_CONFIG.DRAG_THRESHOLD)) {
                 isDragging = true;
                 draggedTower = dragCandidate;
@@ -1204,8 +1500,7 @@
     }
 
     function handleInputEnd() {
-        if (!isGameRunning) return;
-
+        if (!isGameRunning || isPaused) return;
         dragCandidate = null;
 
         if (isDragging && draggedTower) {
@@ -1213,7 +1508,6 @@
             const dropGridY = Math.floor(mouse.y / GAME_CONFIG.TILE_SIZE) * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE / 2;
 
             let isValidDrop = true;
-
             if (dropGridX < 0 || dropGridX > canvas.width || dropGridY < 0 || dropGridY > canvas.height) isValidDrop = false;
 
             const otherTower = towers.find(t => t.x === dropGridX && t.y === dropGridY && t !== draggedTower);
@@ -1231,6 +1525,7 @@
                     draggedTower.y = dropGridY;
                     SoundSystem.playBuild();
                     for (let i = 0; i < 10; i++) ParticlePool.spawn(dropGridX, dropGridY, "#0ff");
+                    StorageManager.save();
                 }
             } else {
                 SoundSystem.playError(); showNotification("INVALID MOVE", "", "#f00", 1000);
@@ -1244,57 +1539,43 @@
 
     canvas.addEventListener("mousedown", e => {
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        handleInputStart((e.clientX - rect.left)*scaleX, (e.clientY - rect.top)*scaleY);
+        handleInputStart((e.clientX - rect.left) * (canvas.width / rect.width), (e.clientY - rect.top) * (canvas.height / rect.height));
     });
     canvas.addEventListener("mousemove", e => {
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        handleInputMove((e.clientX - rect.left)*scaleX, (e.clientY - rect.top)*scaleY);
+        handleInputMove((e.clientX - rect.left) * (canvas.width / rect.width), (e.clientY - rect.top) * (canvas.height / rect.height));
     });
     window.addEventListener("mouseup", () => handleInputEnd());
 
     canvas.addEventListener("touchstart", e => {
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
         const touch = e.touches[0];
-        handleInputStart((touch.clientX - rect.left)*scaleX, (touch.clientY - rect.top)*scaleY);
+        handleInputStart((touch.clientX - rect.left) * (canvas.width / rect.width), (touch.clientY - rect.top) * (canvas.height / rect.height));
     }, {passive: false});
 
     canvas.addEventListener("touchmove", e => {
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
         const touch = e.touches[0];
-        handleInputMove((touch.clientX - rect.left)*scaleX, (touch.clientY - rect.top)*scaleY);
+        handleInputMove((touch.clientX - rect.left) * (canvas.width / rect.width), (touch.clientY - rect.top) * (canvas.height / rect.height));
     }, {passive: false});
 
     window.addEventListener("touchend", () => handleInputEnd());
 
-    // --- Rendering ---
-
     function drawGridOverlay() {
-        if (!isGameRunning) return;
-        if (mouse.x < 0 || mouse.y < 0) return;
-
+        if (!isGameRunning || mouse.x < 0 || mouse.y < 0) return;
         const mx = Math.floor(mouse.x / GAME_CONFIG.TILE_SIZE) * GAME_CONFIG.TILE_SIZE;
         const my = Math.floor(mouse.y / GAME_CONFIG.TILE_SIZE) * GAME_CONFIG.TILE_SIZE;
 
         if (isDragging && draggedTower) {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(mouse.x, mouse.y, draggedTower.range, 0, Math.PI*2);
+            ctx.arc(mouse.x, mouse.y, draggedTower.range, 0, Math.PI * 2);
             ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; ctx.setLineDash([5,5]); ctx.stroke();
             ctx.restore();
-
             draggedTower.draw(mouse.x, mouse.y, true);
-        }
-        else if (selectedBuildType) {
+        } else if (selectedBuildType) {
             const typeData = TOWER_CONFIG[selectedBuildType];
             const slotAvailable = towers.length < maxTowerLimit;
             const canAfford = gold >= typeData.cost;
@@ -1332,24 +1613,26 @@
         els.slots.className = towers.length >= maxTowerLimit ? "text-base md:text-lg text-red-500 font-bold" : "text-base md:text-lg text-cyan-400 font-bold";
     }
 
+    // Pasang Event Listener Hanya Sekali
     document.getElementById("startBtn").addEventListener("click", onMainButtonClick);
     document.getElementById("resumeBtn").addEventListener("click", onResumeButtonClick);
     document.getElementById("retryBtn").addEventListener("click", onRetryButtonClick);
+    
+    // Tampilkan menu awal
     showMainMenu();
 
-    // --- MAIN GAME LOOP (DELTA-TIME NORMALIZED) ---
+    // --- MAIN GAME LOOP ---
     function gameLoop(timestamp) {
         if (!isGameRunning || isPaused) return;
 
-        // Normalisasi Delta-Time terhadap 60 FPS (16.66ms = 1.0 multiplier)
         if (!lastTime) lastTime = timestamp;
         const elapsed = timestamp - lastTime;
         lastTime = timestamp;
-        const dtMulti = Math.min(elapsed / 16.666, 3.0); // Clamp multiplier agar tidak teleportasi saat lag
+        const dtMulti = Math.min(elapsed / 16.666, 3.0);
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Render Path Cyan Style
+        // Render Path
         ctx.lineWidth = GAME_CONFIG.TILE_SIZE * 0.6; ctx.lineCap = "round"; ctx.lineJoin = "round";
         ctx.strokeStyle = "rgba(0, 255, 255, 0.15)";
         ctx.beginPath();
@@ -1357,17 +1640,12 @@
         for (let i = 1; i < pathPoints.length; i++) ctx.lineTo(pathPoints[i].x * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE/2, pathPoints[i].y * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE/2);
         ctx.stroke();
 
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(0, 255, 255, 0.3)";
-        ctx.stroke();
+        ctx.lineWidth = 2; ctx.strokeStyle = "rgba(0, 255, 255, 0.3)"; ctx.stroke();
         ctx.shadowBlur = 0;
 
-        const startP = pathPoints[0];
-        const endP = pathPoints[pathPoints.length - 1];
-
+        const startP = pathPoints[0]; const endP = pathPoints[pathPoints.length - 1];
         ctx.font = "bold 10px 'Orbitron', sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
 
         ctx.fillStyle = "rgba(0, 255, 0, 0.8)";
         ctx.fillText("START", startP.x * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE/2, startP.y * GAME_CONFIG.TILE_SIZE + GAME_CONFIG.TILE_SIZE/2);
@@ -1394,13 +1672,13 @@
             }
         }
 
-        // Update & Render Towers
+        // Update Towers
         towers.forEach(t => {
             if (t !== draggedTower) t.update(dtMulti);
             if (t !== draggedTower) t.draw();
         });
 
-        // Update & Render Enemies
+        // Update Enemies
         for (let i = enemies.length - 1; i >= 0; i--) {
             let e = enemies[i];
             e.update(dtMulti);
@@ -1411,12 +1689,12 @@
                 updateUI();
                 if (lives <= 0) {
                     isGameRunning = false;
+                    WakeLockManager.release();
                     if (retriesLeft > 0) {
                         els.overlay.classList.remove('hidden');
                         document.getElementById("overlayTitle").innerText = "WAVE FAILED";
                         document.getElementById("overlayTitle").className = "text-4xl md:text-5xl font-bold text-yellow-500 mb-4 neon-text text-center";
                         els.overlayDesc.innerHTML = `<p>Don't give up Commander!</p><p class="mt-2 text-yellow-400">You have <strong>${retriesLeft}</strong> retry left.</p>`;
-
                         els.resumeBtn.classList.add('hidden');
                         els.retryBtn.classList.remove('hidden');
                         els.retryBtn.innerText = `RETRY WAVE (${retriesLeft})`;
@@ -1436,7 +1714,7 @@
             }
         }
 
-        // Update & Draw Pooled Bullets & Particles
+        // Update Particles & Bullets
         BulletPool.updateAndDraw(dtMulti);
         ParticlePool.updateAndDraw(dtMulti);
 
